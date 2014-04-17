@@ -2,3 +2,6 @@ demo/cache
 composer.lock
 vendor
 **.swp
+
+
+demo/*.png
