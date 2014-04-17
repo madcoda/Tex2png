@@ -25,9 +25,9 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 <hr />
 <form action="" method="post">
 	<? if(isset($_SESSION['tex'])): ?>
-	<textarea name="tex" rows="3" style="width:500px"><?php echo $_SESSION['tex'] ?></textarea>
+	<textarea name="tex" rows="3" style="width:600px;font-size:16px"><?php echo $_SESSION['tex'] ?></textarea>
 	<? else: ?>
-	<textarea name="tex" rows="3" style="width:500px">\sum_{i = 0}^{i = n} \frac{i}{2}</textarea>
+	<textarea name="tex" rows="3" style="width:600px;font-size:16px">\sum_{i = 0}^{i = n} \frac{i}{2}</textarea>
 	<? endif; ?>
 	<br>
 	<input type="submit" value="Submit" />

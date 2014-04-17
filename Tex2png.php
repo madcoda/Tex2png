@@ -15,12 +15,12 @@ class Tex2png
     /**
     * Where is the LaTex ?
     */
-    const LATEX = "/usr/bin/latex";
+    const LATEX = "$(which latex)";
     
     /**
     * Where is the DVIPNG ?
     */
-    const DVIPNG = "/usr/bin/dvipng";
+    const DVIPNG = "$(which dvipng)";
 
     /**
      * LaTeX packges
