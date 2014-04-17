@@ -10,7 +10,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 
 	//echo "Generating sum.png...\n";
 
-	Tex2png::create($_REQUEST['tex'])
+	Tex2png::create($_REQUEST['tex'], 150)
     ->saveTo('sum.png')
     ->generate();
 

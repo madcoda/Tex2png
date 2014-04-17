@@ -79,6 +79,13 @@ class Tex2png
      */
     public $error = null;
 
+    /**
+     * Set to true to output error msg to logs
+     * @var boolean
+     */
+    public $debug = true;
+
+
     public static function create($formula, $density = 155)
     {
         return new self($formula, $density);
@@ -156,7 +163,7 @@ class Tex2png
         $tmpfile = $this->tmpDir . '/' . $this->hash . '.tex';
 
         $tex = '\documentclass[12pt]{article}'."\n";
-        
+        $tex .= '\usepackage{comicsans}'."\n";
         $tex .= '\usepackage[utf8]{inputenc}'."\n";
 
         // Packages
@@ -173,6 +180,8 @@ class Tex2png
         $tex .= '\end{displaymath}'."\n";
         $tex .= '\end{document}'."\n";
 
+        $this->debug($tex);
+
         if (file_put_contents($tmpfile, $tex) === false) {
             throw new \Exception('Failed to open target file');
         }
@@ -185,7 +194,9 @@ class Tex2png
     {
         $command = 'cd ' . $this->tmpDir . '; ' . self::LATEX . ' ' . $this->hash . '.tex < /dev/null |grep ^!|grep -v Emergency > ' . $this->tmpDir . '/' .$this->hash . '.err 2> /dev/null 2>&1';
 
+        $this->debug("in latexFile");
         shell_exec($command);
+        $this->debug("finished latexFile");
 
         if (!file_exists($this->tmpDir . '/' . $this->hash . '.dvi')) {
             throw new \Exception('Unable to compile LaTeX formula (is latex installed? check syntax)');
@@ -200,9 +211,12 @@ class Tex2png
         // XXX background: -bg 'rgb 0.5 0.5 0.5'
         $command = self::DVIPNG . ' -q -T tight -bg Transparent -D ' . $this->density . ' -o ' . $this->actualFile . ' ' . $this->tmpDir . '/' . $this->hash . '.dvi 2>&1';
 
+        $this->debug("in dvi2png");
+        $this->debug("command = " . $command);
         if (shell_exec($command) === null) {
             throw new \Exception('Unable to convert the DVI file to PNG (is dvipng installed?)');
         }
+        $this->debug("finished dvi2png");
     }
 
     /**
@@ -274,5 +288,11 @@ class Tex2png
     public function __toString()
     {
         return $this->getFile();
+    }
+
+    private function debug($msg){
+        if($this->debug === true){
+            error_log($msg);
+        }
     }
 }
