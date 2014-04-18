@@ -2,10 +2,8 @@
 
 namespace Gregwar\Tex2png;
 
-use Gregwar\Cache\Cache;
-
 /**
- * Helper to generate PNG from LaTeX formula
+ * Helper to generate PNG from LaTeX document
  *
  * @author Grégoire Passault <g.passault@gmail.com>
  */
@@ -26,16 +24,6 @@ class Tex2png
      * LaTeX packges
      */
     public $packages = array('amssymb,amsmath', 'color', 'amsfonts', 'amssymb', 'pst-plot');
-    
-    /**
-     * Cache directory
-     */
-    public $cacheDir = 'cache/tex';
-
-    /**
-     * Actual cache directory
-     */
-    public $actualCacheDir = null;
 
     /**
      * Temporary directory
@@ -50,11 +38,6 @@ class Tex2png
     public $file = null;
 
     /**
-     * Cache
-     */
-    public $cache = null;
-
-    /**
      * Target actual file
      */
     public $actualFile = null;
@@ -65,9 +48,9 @@ class Tex2png
     public $hash;
 
     /**
-     * LaTeX formula
+     * LaTeX document
      */
-    public $formula;
+    public $document;
 
     /**
      * Target density
@@ -86,22 +69,21 @@ class Tex2png
     public $debug = true;
 
 
-    public static function create($formula, $density = 155)
+    public static function create($document, $density = 155)
     {
-        return new self($formula, $density);
+        return new self($document, $density);
     }
 
-    public function __construct($formula, $density = 155)
+    public function __construct($document, $density = 155)
     {
         $datas = array(
-            'formula' => $formula,
+            'document' => $document,
             'density' => $density,
         );
 
-        $this->formula = $formula;
+        $this->document = $document;
         $this->density = $density;
         $this->hash = sha1(serialize($datas));
-        $this->cache = new Cache;
 
         return $this;
     }
@@ -144,21 +126,31 @@ class Tex2png
 
         if ($this->actualFile === null) {
             $target = $this->hash . '.png';
-            $this->cache->getOrCreate($target, array(), $generate);
-
-            $this->file = $this->cache->getCacheFile($target);
-            $this->actualFile = $this->cache->getCacheFile($target, true);
-        } else {
-            $generate($this->actualFile);
+            $this->actualFile = $this->file = $this->tmpDir . '/' . $target;
         }
 
+        $generate($this->actualFile);
+
         return $this;
+    }
+
+
+
+    public function createFile()
+    {
+        $tmpfile = $this->tmpDir . '/' . $this->hash . '.tex';
+
+        $tex = $this->document;
+
+        if (file_put_contents($tmpfile, $tex) === false) {
+            throw new \Exception('Failed to open target file');
+        }
     }
 
     /**
      * Create the LaTeX file
      */
-    public function createFile()
+    public function createMathFile()
     {
         $tmpfile = $this->tmpDir . '/' . $this->hash . '.tex';
 
@@ -175,7 +167,7 @@ class Tex2png
         $tex .= '\pagestyle{empty}'."\n";
         $tex .= '\begin{displaymath}'."\n";
         
-        $tex .= $this->formula."\n";
+        $tex .= $this->document."\n";
         
         $tex .= '\end{displaymath}'."\n";
         $tex .= '\end{document}'."\n";
@@ -199,7 +191,7 @@ class Tex2png
         $this->debug("finished latexFile");
 
         if (!file_exists($this->tmpDir . '/' . $this->hash . '.dvi')) {
-            throw new \Exception('Unable to compile LaTeX formula (is latex installed? check syntax)');
+            throw new \Exception('Unable to compile LaTeX document (is latex installed? check syntax)');
         }
     }
 
@@ -238,24 +230,8 @@ class Tex2png
         }
         else
         {
-            return '<img class="formula" title="Formula" src="' . $this->getFile() . '">';
+            return '<img class="document" title="document" src="' . $this->getFile() . '">';
         }
-    }
-
-    /**
-     * Sets the cache directory
-     */
-    public function setCacheDirectory($directory)
-    {
-        $this->cache->setCacheDirectory($directory);
-    }
-
-    /**
-     * Sets the actual cache directory
-     */
-    public function setActualCacheDirectory($actualDirectory)
-    {
-        $this->cache->setActualCacheDirectory($actualDirectory);
     }
 
     /**

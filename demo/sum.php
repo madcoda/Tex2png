@@ -27,7 +27,22 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 	<? if(isset($_SESSION['tex'])): ?>
 	<textarea name="tex" rows="3" style="width:600px;font-size:16px"><?php echo $_SESSION['tex'] ?></textarea>
 	<? else: ?>
-	<textarea name="tex" rows="3" style="width:600px;font-size:16px">\sum_{i = 0}^{i = n} \frac{i}{2}</textarea>
+	<textarea name="tex" rows="3" style="width:600px;font-size:16px">
+\documentclass[12pt,fleqn]{article} 
+\usepackage{amsfonts}
+\usepackage{comicsans}
+\usepackage{amssymb,amsmath}
+
+\begin{document} 
+\pagestyle{empty}
+\noindent By completing square,
+\begin{align}
+  y = { a ( x-h ) }^2 +k \nonumber \\
+  vertex = \left( h,k \right) \nonumber
+\end{align}
+axis of symmetry:~~x = h
+\end{document} 
+	</textarea>
 	<? endif; ?>
 	<br>
 	<input type="submit" value="Submit" />
