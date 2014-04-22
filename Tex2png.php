@@ -66,7 +66,7 @@ class Tex2png
      * Set to true to output error msg to logs
      * @var boolean
      */
-    public $debug = true;
+    public static $debug = false;
 
 
     public static function create($document, $density = 155)
@@ -118,6 +118,7 @@ class Tex2png
                 // Converts the DVI file to PNG
                 $tex2png->dvi2png();
             } catch (\Exception $e) {
+                $this->debug($e);
                 $tex2png->error = $e;
             }
 
@@ -184,14 +185,23 @@ class Tex2png
      */
     public function latexFile()
     {
-        $command = 'cd ' . $this->tmpDir . '; ' . self::LATEX . ' ' . $this->hash . '.tex < /dev/null |grep ^!|grep -v Emergency > ' . $this->tmpDir . '/' .$this->hash . '.err 2> /dev/null 2>&1';
 
-        $this->debug("in latexFile");
-        shell_exec($command);
-        $this->debug("finished latexFile");
+        //$command = 'cd ' . $this->tmpDir . '; ' . self::LATEX . ' ' . $this->hash . '.tex < /dev/null |grep ^!|grep -v Emergency > ' . $this->tmpDir . '/' .$this->hash . '.err 2> /dev/null 2>&1';
+        $command = 'cd ' . $this->tmpDir . '; ' . self::LATEX . ' ' . $this->hash . '.tex </dev/null 2>&1';
+        $this->debug("command = " . $command);
 
-        if (!file_exists($this->tmpDir . '/' . $this->hash . '.dvi')) {
-            throw new \Exception('Unable to compile LaTeX document (is latex installed? check syntax)');
+        $output = array();
+        $return_var = -1;
+        $last_line = exec($command, $output, $return_var);
+        $this->debug('return_var = ' . $return_var);
+        $this->debug('output =' . print_r($output, true));
+
+        //if (!file_exists($this->tmpDir . '/' . $this->hash . '.dvi')) {
+        //    throw new \Exception('Unable to compile LaTeX document (is latex installed? check syntax)');
+        //}
+        if( $return_var !== 0 || !file_exists($this->tmpDir . '/' . $this->hash . '.dvi') ){
+            $full_error = implode("\n", $output);
+            throw new \Exception('Error compiling the .tex file : ' . $full_error);
         }
     }
 
@@ -200,13 +210,22 @@ class Tex2png
      */
     public function dvi2png()
     {
+        $this->debug("in dvi2png");
+
         // XXX background: -bg 'rgb 0.5 0.5 0.5'
         $command = self::DVIPNG . ' -q -T tight -bg Transparent -D ' . $this->density . ' -o ' . $this->actualFile . ' ' . $this->tmpDir . '/' . $this->hash . '.dvi 2>&1';
-
-        $this->debug("in dvi2png");
         $this->debug("command = " . $command);
-        if (shell_exec($command) === null) {
-            throw new \Exception('Unable to convert the DVI file to PNG (is dvipng installed?)');
+
+        $output = array();
+        $return_var = -1;
+        $last_line = exec($command, $output, $return_var);
+        $this->debug('return_var =' . $return_var);
+        $this->debug('output =' . print_r($output, true));
+
+        if ($return_var !== 0) {
+            $full_error = implode("\n", $output);
+            throw new \Exception('Unable to convert the DVI file to PNG (is dvipng installed?) :' . $full_error);
+            //throw new \Exception('Unable to convert the DVI file to PNG (is dvipng installed?)');
         }
         $this->debug("finished dvi2png");
     }
@@ -267,7 +286,7 @@ class Tex2png
     }
 
     private function debug($msg){
-        if($this->debug === true){
+        if(self::$debug === true){
             error_log($msg);
         }
     }
