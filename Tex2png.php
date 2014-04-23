@@ -22,11 +22,6 @@ class Tex2png
     const DVIPNG = "$(which dvipng)";
 
     /**
-     * LaTeX packges
-     */
-    public $packages = array('amssymb,amsmath', 'color', 'amsfonts', 'amssymb', 'pst-plot');
-
-    /**
      * Temporary directory
      * This is needed to write temporary files needed for
      * generation
@@ -56,7 +51,7 @@ class Tex2png
     /**
      * Target density
      */
-    public $density;
+    private $density = 155;
 
     /**
      * Error (if any)
@@ -138,7 +133,7 @@ class Tex2png
 
 
 
-    public function createFile()
+    protected function createFile()
     {
         $tmpfile = $this->tmpDir . '/' . $this->hash . '.tex';
 
@@ -150,41 +145,9 @@ class Tex2png
     }
 
     /**
-     * Create the LaTeX file
-     */
-    public function createMathFile()
-    {
-        $tmpfile = $this->tmpDir . '/' . $this->hash . '.tex';
-
-        $tex = '\documentclass[12pt]{article}'."\n";
-        $tex .= '\usepackage{comicsans}'."\n";
-        $tex .= '\usepackage[utf8]{inputenc}'."\n";
-
-        // Packages
-        foreach ($this->packages as $package) {
-            $tex .= '\usepackage{' . $package . "}\n";
-        }
-        
-        $tex .= '\begin{document}'."\n";
-        $tex .= '\pagestyle{empty}'."\n";
-        $tex .= '\begin{displaymath}'."\n";
-        
-        $tex .= $this->document."\n";
-        
-        $tex .= '\end{displaymath}'."\n";
-        $tex .= '\end{document}'."\n";
-
-        $this->debug($tex);
-
-        if (file_put_contents($tmpfile, $tex) === false) {
-            throw new \Exception('Failed to open target file');
-        }
-    }
-
-    /**
      * Compiles the LaTeX to DVI
      */
-    public function latexFile()
+    protected function latexFile()
     {
 
         //$command = 'cd ' . $this->tmpDir . '; ' . self::LATEX . ' ' . $this->hash . '.tex < /dev/null |grep ^!|grep -v Emergency > ' . $this->tmpDir . '/' .$this->hash . '.err 2> /dev/null 2>&1';
@@ -209,7 +172,7 @@ class Tex2png
     /**
      * Converts the DVI file to PNG
      */
-    public function dvi2png()
+    protected function dvi2png()
     {
         $this->debug("in dvi2png");
 
@@ -234,7 +197,7 @@ class Tex2png
     /**
      * Cleaning
      */
-    public function clean()
+    protected function clean()
     {
         @shell_exec('rm -f ' . $this->tmpDir . '/' . $this->hash . '.* 2>&1');
     }
@@ -278,6 +241,7 @@ class Tex2png
         return $filename;
     }
 
+
     /**
      * The string representation is the cache file
      */
@@ -291,4 +255,15 @@ class Tex2png
             error_log($msg);
         }
     }
+
+    public function setDensity($density){
+        $this->density = $density;
+        return $this;
+    }
+
+    public function getDensity(){
+        return $this->density;
+    }
+
+
 }

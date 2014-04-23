@@ -16,13 +16,13 @@ class Tex2PngTest extends \PHPUnit_Framework_TestCase
     	//Tex2png::$debug = true;
 
         $this->tex2png = null;
-       	@unlink('test.png');
+       	//@unlink('test.png');
     }
 
     public function tearDown()
     {
     	$this->tex2png = null;
-    	@unlink('test.png');
+    	//@unlink('test.png');
     }
 
     public function GoodExample(){
@@ -79,13 +79,29 @@ class Tex2PngTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider BadExample
-     * @expectedException Exception
      */
-    public function testSyntaxError(){
+    public function testSyntaxError($input){
     	$this->tex2png = Tex2png::create($input, 150)
     	->saveTo('test.png')
     	->generate();
+        $this->assertNotEmpty($this->tex2png->error);
     	//error_log($this->tex2png->error);
+    }
+
+    /**
+     * @dataProvider GoodExample
+     */
+    public function testDensitySetting($input){
+        $this->tex2png = Tex2png::create($input)
+        ->setDensity(300)
+        ->saveTo('test_300dpi.png')
+        ->generate();
+
+        $this->tex2png = Tex2png::create($input)
+        ->setDensity(400)
+        ->saveTo('test_400dpi.png')
+        ->generate();
+
     }
 
 
