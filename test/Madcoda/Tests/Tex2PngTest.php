@@ -4,7 +4,7 @@ namespace Madcoda\Tests;
 
 require_once('./vendor/autoload.php');
 
-use Gregwar\Tex2png\Tex2png;
+use Madcoda\Tex2png\Tex2png;
 
 class Tex2PngTest extends \PHPUnit_Framework_TestCase
 {

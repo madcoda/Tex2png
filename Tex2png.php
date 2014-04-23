@@ -1,10 +1,11 @@
 <?php
 
-namespace Gregwar\Tex2png;
+namespace Madcoda\Tex2png;
 
 /**
  * Helper to generate PNG from LaTeX document
  *
+ * @author Jason Leung <jason@madcoda.com>
  * @author Grégoire Passault <g.passault@gmail.com>
  */
 class Tex2png

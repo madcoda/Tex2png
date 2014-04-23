@@ -2,7 +2,7 @@
 
 require('../autoload.php');
 
-use Gregwar\Tex2png\Tex2png;
+use Madcoda\Tex2png\Tex2png;
 
 session_start();
 
