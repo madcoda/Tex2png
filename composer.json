@@ -15,10 +15,9 @@
     "require-dev": {
         "phpunit/phpunit": "3.7.*@stable"
     },
-    "target-dir": "madcoda/Tex2png",
     "autoload": {
-        "psr-0": {
-            "Madcoda\\Tex2png": ""
+        "psr-4": {
+            "Madcoda\\Tex2png": "src"
         }
     }
 }
