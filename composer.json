@@ -17,7 +17,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Madcoda\\Tex2png": "src"
+            "Madcoda\\Tex2png\\": "src/Madcoda/Tex2png"
         }
     }
 }
